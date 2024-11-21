@@ -4,6 +4,7 @@ import image_generation_module
 
 ROOT_BOX_STYLE = me.Style(
     background="#e7f2ff",
+    height = '100%',
     font_family="Inter",
     display="flex",
     flex_direction="column",
@@ -38,18 +39,6 @@ def page():
             )
             chat_input()
             print_result()
-        with me.box(
-            style=me.Style(
-                width="min(680px, 100%)",
-                margin=me.Margin.symmetric(horizontal="auto", vertical=36),
-            )
-        ):
-            me.text(
-                "[예제2] 이미지 생성하기 프로토타입",
-                style=me.Style(font_size=20, margin=me.Margin(bottom=24)),
-            )
-            chat_input()
-            print_result()
 
 def header():
     with me.box(
@@ -67,31 +56,6 @@ def header():
             ),
         )
 
-def chat_input():
-    state = me.state(State)
-    with me.box(
-        style=me.Style(
-            border_radius=16,
-            padding=me.Padding.all(8),
-            background="white",
-            display="flex",
-            width="100%",
-        )
-    ):
-        with me.box(style=me.Style(flex_grow=1)):
-            me.native_textarea(
-                value=state.input,
-                placeholder="Enter a prompt",
-                style=me.Style(
-                    padding=me.Padding(top=16, left=16),
-                    outline="none",
-                    width="100%",
-                    border=me.Border.all(me.BorderSide(style="none")),
-                ),
-            )
-        with me.content_button(type="icon", on_click=send_prompt):
-            me.icon("send")
-
 def print_result():
     state = me.state(State) 
     with me.box(
@@ -107,6 +71,38 @@ def print_result():
                 style=me.Style(width="60%"),
             )
 
+
+def chat_input():
+    state = me.state(State)
+    with me.box(
+        style=me.Style(
+            border_radius=16,
+            padding=me.Padding.all(8),
+            background="white",
+            display="flex",
+            width="100%",
+        )
+    ):
+        with me.box(style=me.Style(flex_grow=1)):
+            me.native_textarea(
+                value=state.input,
+                placeholder="Enter a prompt",
+                on_blur=on_blur,
+                style=me.Style(
+                    padding=me.Padding(top=16, left=16),
+                    outline="none",
+                    width="100%",
+                    border=me.Border.all(me.BorderSide(style="none")),
+                ),
+            )
+        with me.content_button(type="icon", on_click=send_prompt):
+            me.icon("send")
+
+
+def on_blur(e: me.InputBlurEvent):
+    state = me.state(State)
+    state.input = e.value
+    print("on_blur에서 state.input 업데이트:", state.input)  # 디버그 출력
 
 def send_prompt(e: me.ClickEvent):
     state = me.state(State)

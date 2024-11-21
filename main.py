@@ -15,6 +15,7 @@ ROOT_BOX_STYLE = me.Style(
 class State:
     input: str = ""
     image_url :str = ""
+    selected_style: str = "A"  # 선택된 스타일 (기본 A)
 
 
 # Replace page() with this:
@@ -37,8 +38,34 @@ def page():
                 "[예제1]이미지 생성하기 프로토타입",
                 style=me.Style(font_size=20, margin=me.Margin(bottom=24)),
             )
+            style_selector()  # 스타일 선택 버튼
             chat_input()
             print_result()
+
+# 스타일 선택 버튼
+def style_selector():
+    state = me.state(State)
+    
+    with me.box(style=me.Style(display="flex", margin=me.Margin(bottom=20))):
+        # A 스타일 버튼 (일러스트 스타일)
+        with me.box(style=me.Style(margin=me.Margin(right=10))):
+            me.button(
+                "일러스트 스타일(A)",
+                on_click=lambda e: set_style("A"),  # 클릭 시 A 스타일로 설정
+                style=me.Style(background="#4CAF50", color="white", padding=me.Padding.all(10)),
+            )
+        # B 스타일 버튼 (실사 스타일)
+        with me.box(style=me.Style(margin=me.Margin(right=10))):
+            me.button(
+                "실사 스타일(B)",
+                on_click=lambda e: set_style("B"),  # 클릭 시 B 스타일로 설정
+                style=me.Style(background="#008CBA", color="white", padding=me.Padding.all(10)),
+            )
+
+# 스타일 설정 함수
+def set_style(style: str):
+    state = me.state(State)
+    state.selected_style = style  # 선택된 스타일 업데이트
 
 def header():
     with me.box(
@@ -104,8 +131,18 @@ def on_blur(e: me.InputBlurEvent):
     state.input = e.value
     print("on_blur에서 state.input 업데이트:", state.input)  # 디버그 출력
 
+
+# 사용자가 입력한 프롬프트를 처리하고 이미지를 생성
 def send_prompt(e: me.ClickEvent):
     state = me.state(State)
-    input = state.input
-    state.input = ""
-    state.image_url = image_generation_module.send_prompt_flash(input)
+    input_text = state.input
+    state.input = ""  # 입력 필드 초기화
+
+    # 스타일에 따른 이미지 생성
+    if state.selected_style == "A":
+        # A 스타일 (예: 일러스트 스타일)
+        state.image_url = image_generation_module.send_prompt_flash(input, "A")  # 스타일 파라미터 전달
+
+    elif state.selected_style == "B":
+        # B 스타일 (예: 실사 스타일)
+        state.image_url = image_generation_module.send_prompt_flash(input, "B")  # 스타일 파라미터 전달
